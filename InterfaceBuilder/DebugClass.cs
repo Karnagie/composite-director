@@ -20,7 +20,10 @@ public class TestComposite : IPool<ITest>, ITest
 
     public Result Foo()
     {
-        CompositeHelper.Group(FooInternal, this);
+        CompositeHelper.Group(tests =>
+        {
+            FooInternal(tests);
+        }, this);
 
         return default;
     }
@@ -42,12 +45,53 @@ public class TestComposite : IPool<ITest>, ITest
 
         return default;
     }
-    
+
     private void Foo1Internal(ITest[] tests, string value)
     {
         for (int i = 0; i < tests.Length; i++)
         {
             tests[i].FooWithArgs(value);
+        }
+    }
+    
+    public Result FooWithTwoArgs(string value, int value1)
+    {
+        CompositeHelper.Group(tests =>
+        {
+            Foo1Internal(tests, value, value1);
+        }, this);
+
+        return default;
+    }
+
+    public void FooWithTwoArgs(ITest[] tests, string value1, int i, string valu, int val, int val1)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Result FooWithTwoArgs1(string value, int value1, string valu, int val, int val1)
+    {
+        CompositeHelper.Group(tests =>
+        {
+            Foo1Internal(tests, value, value1, valu, val, val1);
+        }, this);
+
+        return default;
+    }
+
+    private void Foo1Internal(ITest[] tests, string value, int value1, string valu, int val, int val1)
+    {
+        for (int i = 0; i < tests.Length; i++)
+        {
+            tests[i].FooWithTwoArgs(tests, value, value1, valu, val, val1);
+        }
+    }
+
+    private void Foo1Internal(ITest[] tests, string value, int value1)
+    {
+        for (int i = 0; i < tests.Length; i++)
+        {
+            tests[i].FooWithTwoArgs(value, value1);
         }
     }
 }
@@ -56,6 +100,8 @@ public interface ITest
 {
     Result Foo();
     Result FooWithArgs(string value);
+    Result FooWithTwoArgs(string value, int value1);
+    void FooWithTwoArgs(ITest[] tests, string value1, int i, string valu, int val, int val1);
 }
 
 public class Test : ITest
@@ -73,6 +119,18 @@ public class Test : ITest
 
         return default;
     }
+
+    public Result FooWithTwoArgs(string value, int value1)
+    {
+        Console.WriteLine($"{value}+{value1}");
+
+        return default;
+    }
+
+    public void FooWithTwoArgs(ITest[] tests, string value1, int i, string valu, int val, int val1)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public class Test1 : ITest, ILayer
@@ -89,6 +147,18 @@ public class Test1 : ITest, ILayer
         Console.WriteLine($"Foo+{value}");
 
         return default;
+    }
+
+    public Result FooWithTwoArgs(string value, int value1)
+    {
+        Console.WriteLine($"1//{value}+{value1}");
+
+        return default;
+    }
+
+    public void FooWithTwoArgs(ITest[] tests, string value1, int i, string valu, int val, int val1)
+    {
+        throw new NotImplementedException();
     }
 
     public void Perform()
