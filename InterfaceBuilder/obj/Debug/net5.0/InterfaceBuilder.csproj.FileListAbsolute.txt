@@ -1,0 +1,16 @@
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\bin\Debug\net5.0\InterfaceBuilder.exe
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\bin\Debug\net5.0\InterfaceBuilder.deps.json
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\bin\Debug\net5.0\InterfaceBuilder.runtimeconfig.json
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\bin\Debug\net5.0\InterfaceBuilder.runtimeconfig.dev.json
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\bin\Debug\net5.0\InterfaceBuilder.dll
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\bin\Debug\net5.0\ref\InterfaceBuilder.dll
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\bin\Debug\net5.0\InterfaceBuilder.pdb
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\obj\Debug\net5.0\InterfaceBuilder.csproj.AssemblyReference.cache
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\obj\Debug\net5.0\InterfaceBuilder.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\obj\Debug\net5.0\InterfaceBuilder.AssemblyInfoInputs.cache
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\obj\Debug\net5.0\InterfaceBuilder.AssemblyInfo.cs
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\obj\Debug\net5.0\InterfaceBuilder.csproj.CoreCompileInputs.cache
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\obj\Debug\net5.0\InterfaceBuilder.dll
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\obj\Debug\net5.0\ref\InterfaceBuilder.dll
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\obj\Debug\net5.0\InterfaceBuilder.pdb
+C:\Users\Vladimir\RiderProjects\InterfaceBuilder\InterfaceBuilder\obj\Debug\net5.0\InterfaceBuilder.genruntimeconfig.cache
