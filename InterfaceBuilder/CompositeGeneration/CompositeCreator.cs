@@ -32,8 +32,10 @@ namespace InterfaceBuilder
             typeBuilder.AddInterfaceImplementation(typeof(T));
             typeBuilder.AddInterfaceImplementation(genericPoolType);
 
-            FieldBuilder fieldBuilder = typeBuilder.DefineField("_items", typeof(List<T>), FieldAttributes.Public);
-
+            FieldBuilder fieldBuilder = typeBuilder.DefineField("Items", typeof(List<T>), FieldAttributes.Public);
+            CreateGetItemsMethod(typeBuilder, fieldBuilder, typeof(T));
+            
+            
             var poolMethods = genericPoolType.GetMethods();
             foreach (var method in poolMethods)
             {
@@ -54,6 +56,9 @@ namespace InterfaceBuilder
             foreach (var method in methods)
             {
                 var intern = CreateInternalCopy(typeBuilder, method, typeof(T));
+                if(method.GetParameters().Length == 0)
+                    CreateInterfaceMethod(typeBuilder, method, fieldBuilder, intern,
+                        typeof(T));
                 // var methodBuilder = CreateInterfaceMethod(typeBuilder, method, fieldBuilder, intern, 
                 //     typeof(T));
                 //typeBuilder.DefineMethodOverride(methodBuilder, method);
@@ -61,8 +66,33 @@ namespace InterfaceBuilder
 
             Type myType = typeBuilder.CreateType();
             object instance = Activator.CreateInstance(myType!);
-            instance!.GetType().GetField("_items")!.SetValue(instance, new List<T>());
+            instance!.GetType().GetField("Items")!.SetValue(instance, new List<T>());
             return instance as IPool<T>;
+        }
+
+        private MethodInfo CreateGetItemsMethod(TypeBuilder typeBuilder, FieldBuilder items, Type generic)
+        {
+            var poolType = typeof(List<>);
+            var genericPoolType = poolType.MakeGenericType(generic);
+            
+            MethodBuilder builder = typeBuilder.DefineMethod(
+                $"get_Items",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final |
+                MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.SpecialName,
+                genericPoolType,
+                new Type[] {});
+            FieldInfo field = items;
+            
+            ILGenerator lout = builder.GetILGenerator();
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Ldfld, field);
+            // IL_0000: ldarg.0      // this
+            // IL_0001: ldfld        class [System.Collections]System.Collections.Generic.List`1<class ITest> TestComposite::'<Items>k__BackingField'
+            // IL_0006: ret
+            
+            lout.Emit(OpCodes.Ret);
+
+            return builder;
         }
 
         private MethodInfo CreateInternalCopy(TypeBuilder typeBuilder, MethodInfo method, Type generic)
@@ -95,14 +125,24 @@ namespace InterfaceBuilder
             lout.Emit(OpCodes.Ldarg_1);
             lout.Emit(OpCodes.Ldloc_0);
             lout.Emit(OpCodes.Ldelem_Ref);
-            lout.Emit(OpCodes.Ldarg_1);
-            
-            // IL_0009: ldarg.1      // tests
-            // IL_000a: ldarg.2      // 'value'
-            // IL_000b: ldarg.3      // value1
-            // IL_000c: ldarg.s      valu // integer
-            // IL_000e: ldarg.s      val
-            // IL_0010: ldarg.s      val1
+            for (int j = 1; j < parameters.Count; j++)
+            {
+                switch (j)
+                {
+                    case 1: 
+                        lout.Emit(OpCodes.Ldarg_1);
+                        break;
+                    case 2: 
+                        lout.Emit(OpCodes.Ldarg_2);
+                        break;
+                    case 3:
+                        lout.Emit(OpCodes.Ldarg_3);
+                        break;
+                    default:
+                        lout.Emit(OpCodes.Ldarg_S);
+                        break;
+                }
+            }
             
             lout.Emit(OpCodes.Callvirt, method);
             lout.Emit(OpCodes.Pop);
@@ -303,7 +343,7 @@ namespace InterfaceBuilder
             return builder;
         }
 
-        private MethodBuilder CreateInterfaceMethodWithoutParams(TypeBuilder typeBuilder, MethodInfo method, FieldBuilder items, 
+        private MethodBuilder CreateInterfaceMethod(TypeBuilder typeBuilder, MethodInfo method, FieldBuilder items, 
             MethodInfo internalCopy, Type generic)
         {
             MethodBuilder builder = typeBuilder.DefineMethod(
@@ -314,24 +354,42 @@ namespace InterfaceBuilder
 
             ILGenerator lout = builder.GetILGenerator();
             
+            var actionType = typeof(Action<>);
+            var genericArray = generic.MakeArrayType();
+            var genericActionType = actionType.MakeGenericType(genericArray);
+            
+            var compType = typeof(IPool<>);
+            var genericCompType = compType.MakeGenericType(generic);
+            
+            var comp = lout.DeclareLocal(genericCompType);
+            var func = lout.DeclareLocal(genericActionType);
             var v2 = lout.DeclareLocal(typeof(Result));
             
             var intern = internalCopy;
 
-            var actionType = typeof(Action<>);
-            var genericArray = generic.MakeArrayType();
-            var genericActionType = actionType.MakeGenericType(genericArray);
-
-            var groupMethod = typeof(CompositeHelper).GetMethod("Group");
+            var groupMethod = typeof(CompositeHelper).GetMethod("Group").MakeGenericMethod(generic);
+            var intern1 = genericActionType.GetConstructors()[0];
+            
+            var jump = lout.DefineLabel();
+            
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Stloc_0);
             
             lout.Emit(OpCodes.Ldarg_0);
             lout.Emit(OpCodes.Ldftn, intern);
-            lout.Emit(OpCodes.Newobj, genericActionType);
-            lout.Emit(OpCodes.Ldarg_0);
-            lout.Emit(OpCodes.Call, groupMethod!);
+            lout.Emit(OpCodes.Newobj, intern1);
+            lout.Emit(OpCodes.Stloc_1);
             
-            lout.Emit(OpCodes.Stloc_0);
-             lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Ldloc_1);
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Call, groupMethod!);
+
+            lout.Emit(OpCodes.Ldc_I4_0);
+            lout.Emit(OpCodes.Stloc_2);
+            lout.Emit(OpCodes.Br_S, jump);
+
+            lout.MarkLabel(jump);
+            lout.Emit(OpCodes.Ldloc_2);
             lout.Emit(OpCodes.Ret);
 
             return builder;

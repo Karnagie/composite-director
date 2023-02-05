@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,10 +20,10 @@ public class TestComposite : IPool<ITest>, ITest
 
     public Result Foo()
     {
-        CompositeHelper.Group(tests =>
-        {
-            FooInternal(tests);
-        }, this);
+        IPool<ITest> comp = this;
+        Action<ITest[]> func = new Action<ITest[]>(FooInternal);
+        
+        CompositeHelper.Group(func, comp);
 
         return default;
     }
@@ -32,16 +32,20 @@ public class TestComposite : IPool<ITest>, ITest
     {
         for (int i = 0; i < tests.Length; i++)
         {
-            Items[i].Foo();
+            tests[i].Foo();
         }
     }
     
     public Result FooWithArgs(string value)
     {
-        CompositeHelper.Group(tests =>
+        
+        IPool<ITest> comp = this;
+        Action<ITest[]> func = tests =>
         {
             Foo1Internal(tests, value);
-        }, this);
+        };
+        
+        CompositeHelper.Group(func, comp);
 
         return default;
     }

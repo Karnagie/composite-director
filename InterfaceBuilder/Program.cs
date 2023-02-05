@@ -7,24 +7,39 @@ namespace InterfaceBuilder
     {
         static void Main(string[] args)
         {
-            var mocks = new List<ITest>
+            var mocks = new List<Mock>
             {
-                new Test(),
-                new Test1(),
-                new Test1(),
-                new Test1(),
-                new Test(),
+                new (),
+                new (),
+                new (),
+                new (),
+                new (),
             };
             
-            //
-            //var creator = new CompositeCreator();
-            IPool<ITest> instance = new TestComposite();//creator.Create<IFooable>();
+            var creator = new CompositeCreator();
+            var instance = creator.Create<IFooable>();
             foreach (var mock in mocks)
             {
                 instance.Add(mock);
             }
+            
+            var fooable = instance as IFooable;
+            
+            fooable!.Foo();
+            //fooable.Foo().For<ILayer>();
+            //fooable.FooWithArgs("Testing");
+            CompositeHelper.Perform();
+            
+            
+            //
+            //var creator = new CompositeCreator();
+            // IPool<ITest> instance = new TestComposite();//creator.Create<IFooable>();
+            // foreach (var mock in mocks)
+            // {
+            //     instance.Add(mock);
+            // }
 
-            var fooable = instance as ITest;
+            //var fooable = instance as ITest;
             // var savable = creator.Create<ISavable>();
             // foreach (var mock in mocks)
             // {
@@ -32,10 +47,10 @@ namespace InterfaceBuilder
             // }
             //
 
-            fooable.Foo();
-            fooable.Foo().For<ILayer>();
-            fooable.FooWithArgs("Testing");
-            CompositeHelper.Perform();
+            // fooable.Foo();
+            // fooable.Foo().For<ILayer>();
+            // fooable.FooWithArgs("Testing");
+            // CompositeHelper.Perform();
 
             // var composite = instance as IFooable;
             // var savableComposite = savable as ISavable;
