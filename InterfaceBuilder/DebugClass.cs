@@ -38,13 +38,11 @@ public class TestComposite : IPool<ITest>, ITest
     
     public Result FooWithArgs(string value)
     {
-        
         IPool<ITest> comp = this;
         Action<ITest[]> func = tests =>
         {
             Foo1Internal(tests, value);
         };
-        
         CompositeHelper.Group(func, comp);
 
         return default;

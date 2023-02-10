@@ -25,7 +25,7 @@ namespace InterfaceBuilder
             
             var fooable = instance as IFooable;
             
-            fooable!.Foo();
+            fooable!.FooWithArgs(0);
             //fooable.Foo().For<ILayer>();
             //fooable.FooWithArgs("Testing");
             CompositeHelper.Perform();
