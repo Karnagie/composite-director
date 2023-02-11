@@ -19,7 +19,7 @@ namespace InterfaceBuilder.CompositeGeneration
                 AssemblyBuilderAccess.Run);
 
             ModuleBuilder myModule = assemblyBuilder.DefineDynamicModule("InternalClassesAssembly");
-
+            //compositeType.DefineNestedType()
             var name = $"{compositeType.ToString()!.ToLower()}{itemsType.ToString().ToLower()}";
             foreach (var parameter in parameters)
             {

@@ -7,13 +7,13 @@ namespace InterfaceBuilder
     {
         static void Main(string[] args)
         {
-            var mocks = new List<Mock>
+            var mocks = new List<IFooable>
             {
-                new (),
-                new (),
-                new (),
-                new (),
-                new (),
+                new Mock(),
+                new NotSavableMock(),
+                new Mock(),
+                new NotSavableMock(),
+                new Mock(),
             };
             
             var creator = new CompositeCreator();
@@ -25,7 +25,7 @@ namespace InterfaceBuilder
             
             var fooable = instance as IFooable;
             
-            fooable!.FooWithArgs(0);
+            fooable!.FooWithArgs(10).For<ISavable>();
             //fooable.Foo().For<ILayer>();
             //fooable.FooWithArgs("Testing");
             CompositeHelper.Perform();

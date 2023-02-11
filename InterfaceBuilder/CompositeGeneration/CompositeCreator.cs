@@ -146,15 +146,12 @@ namespace InterfaceBuilder
                 switch (j)
                 {
                     case 1: 
-                        lout.Emit(OpCodes.Ldarg_1);
-                        break;
-                    case 2: 
                         lout.Emit(OpCodes.Ldarg_2);
                         break;
-                    case 3:
+                    case 2: 
                         lout.Emit(OpCodes.Ldarg_3);
                         break;
-                    default:
+                    case 3:
                         lout.Emit(OpCodes.Ldarg_S, j);
                         break;
                 }

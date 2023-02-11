@@ -27,6 +27,21 @@ public class Mock : IFooable, ISavable
     }
 }
 
+public class NotSavableMock : IFooable
+{
+    public Result Foo()
+    {
+        Console.WriteLine("not save foo");
+        return default;
+    }
+    
+    public Result FooWithArgs(int name)
+    {
+        Console.WriteLine($"not save {name}");
+        return default;
+    }
+}
+
 public interface ISavable
 {
     Result Save();
