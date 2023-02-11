@@ -7,26 +7,29 @@ namespace InterfaceBuilder.CompositeGeneration
 {
     public class InternalClassCreator
     {
-        public object Create(TypeBuilder compositeType, MethodInfo internalMethod, Type itemsType, params KeyValuePair<Type, string>[] parameters)
+        public Type Create(ModuleBuilder myModule, TypeBuilder compositeType, MethodInfo internalMethod, Type itemsType, params KeyValuePair<Type, string>[] parameters)
         {
-            AssemblyName assemblyName = new AssemblyName
-            {
-                Name = "InternalClassesAssembly"
-            };
+            // AssemblyName assemblyName = new AssemblyName
+            // {
+            //     Name = "InternalClassesAssembly"
+            // };
 
-            AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(
-                assemblyName,
-                AssemblyBuilderAccess.Run);
+            // AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(
+            //     assemblyName,
+            //     AssemblyBuilderAccess.Run);
 
-            ModuleBuilder myModule = assemblyBuilder.DefineDynamicModule("InternalClassesAssembly");
-            //compositeType.DefineNestedType()
-            var name = $"{compositeType.ToString()!.ToLower()}{itemsType.ToString().ToLower()}";
+            //ModuleBuilder myModule = assemblyBuilder.DefineDynamicModule("InternalClassesAssembly");
+            
+            var name = $"Internal_{compositeType.Name}_{internalMethod.Name}";
             foreach (var parameter in parameters)
             {
                 //todo replace to index
-                name += $"{parameter.Key.ToString()!.ToLower()}{parameter.Value.ToLower()}";
+                name += $"_{parameter.Key.ToString()!.ToLower()}";
             }
 
+            Console.WriteLine(name);
+            
+            //TypeBuilder typeBuilder = compositeType.DefineNestedType(name, TypeAttributes.NestedPublic);
             TypeBuilder typeBuilder = myModule.DefineType($"Internal{name}",
                 TypeAttributes.Public);
             
@@ -45,12 +48,8 @@ namespace InterfaceBuilder.CompositeGeneration
             CreateMethod(typeBuilder, composite, internalMethod, itemsType, fields.ToArray());
 
             Type myType = typeBuilder.CreateType();
-            object instance = Activator.CreateInstance(myType!);
-            // foreach (var parameter in parameters)
-            // {
-            //     instance!.GetType().GetField(parameter.Value)!.SetValue(instance, new List<T>());   
-            // }
-            return instance;
+            //object instance = Activator.CreateInstance(myType!);
+            return myType;
         }
 
         private void CreateMethod(TypeBuilder typeBuilder, FieldInfo composite, MethodInfo internalMethod, Type itemsType, params FieldInfo[] parameters)
@@ -59,7 +58,7 @@ namespace InterfaceBuilder.CompositeGeneration
                 $"b__0",
                 MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName,
                 typeof(void),
-                new Type[] {itemsType});
+                new [] {itemsType});
             
             ILGenerator lout = builder.GetILGenerator();
             

@@ -38,6 +38,7 @@ public class TestComposite : IPool<ITest>, ITest
     
     public Result FooWithArgs(string value)
     {
+        var test = new Test();
         IPool<ITest> comp = this;
         Action<ITest[]> func = tests =>
         {
@@ -95,6 +96,11 @@ public class TestComposite : IPool<ITest>, ITest
         {
             tests[i].FooWithTwoArgs(value, value1);
         }
+    }
+    
+    public class Test
+    {
+        private TestComposite _composite;
     }
 }
 
@@ -180,4 +186,18 @@ public interface IPool<T>
     void Remove(T item);
     
     List<T> Items { get; }
+}
+
+class ParentClass
+{
+    class NestedClass
+    {
+        //some code
+    }
+
+    void Foo()
+    {
+        var nested = new NestedClass();
+        //some code with nested
+    }
 }

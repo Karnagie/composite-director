@@ -24,7 +24,8 @@ namespace InterfaceBuilder
             }
             
             var fooable = instance as IFooable;
-            
+
+            //fooable.Foo();
             fooable!.FooWithArgs(10).For<ISavable>();
             //fooable.Foo().For<ILayer>();
             //fooable.FooWithArgs("Testing");

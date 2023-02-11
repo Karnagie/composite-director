@@ -70,14 +70,11 @@ namespace InterfaceBuilder
                     }
                     
                     var internalCopyCreator = new InternalClassCreator();
-                    var internalCopy = internalCopyCreator.Create(typeBuilder, intern, 
+                    var internalCopy = internalCopyCreator.Create(myModule, typeBuilder, intern, 
                         fieldBuilder.FieldType, args.ToArray());
                     
-                    CreateInterfaceMethodWithParams(typeBuilder, method, typeof(T), args.ToArray(), internalCopy.GetType());
+                    CreateInterfaceMethodWithParams(typeBuilder, method, typeof(T), args.ToArray(), internalCopy);
                 }
-                // var methodBuilder = CreateInterfaceMethod(typeBuilder, method, fieldBuilder, intern, 
-                //     typeof(T));
-                //typeBuilder.DefineMethodOverride(methodBuilder, method);
             }
 
             Type myType = typeBuilder.CreateType();
@@ -286,7 +283,7 @@ namespace InterfaceBuilder
                 MethodAttributes.Public | MethodAttributes.Virtual |  MethodAttributes.HideBySig,
                 typeof(Result),
                 args.Select((pair => pair.Key)).ToArray());
-    
+
             ILGenerator lout = builder.GetILGenerator();
             var composite = lout.DeclareLocal(internalClass);
             var v1 = lout.DeclareLocal(typeof(Result));
@@ -297,7 +294,7 @@ namespace InterfaceBuilder
             var genericActionTypeConstructor = genericActionType.GetConstructors()[0];
 
             var groupMethod = typeof(CompositeHelper).GetMethod("Group").MakeGenericMethod(generic);
-
+            
             ConstructorInfo internalClassConstructor = internalClass.GetConstructors()[0];
             FieldInfo _this = internalClass.GetField("_this");
             MethodInfo b__0 = internalClass.GetMethod("b__0");
