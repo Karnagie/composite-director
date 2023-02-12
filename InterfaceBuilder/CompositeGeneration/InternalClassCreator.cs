@@ -9,30 +9,14 @@ namespace InterfaceBuilder.CompositeGeneration
     {
         public Type Create(ModuleBuilder myModule, TypeBuilder compositeType, MethodInfo internalMethod, Type itemsType, params KeyValuePair<Type, string>[] parameters)
         {
-            // AssemblyName assemblyName = new AssemblyName
-            // {
-            //     Name = "InternalClassesAssembly"
-            // };
-
-            // AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(
-            //     assemblyName,
-            //     AssemblyBuilderAccess.Run);
-
-            //ModuleBuilder myModule = assemblyBuilder.DefineDynamicModule("InternalClassesAssembly");
-            
-            var name = $"Internal_{compositeType.Name}_{internalMethod.Name}";
+            var name = $"{compositeType.FullName}+Internal_{internalMethod.Name}";
             foreach (var parameter in parameters)
             {
-                //todo replace to index
                 name += $"_{parameter.Key.ToString()!.ToLower()}";
             }
-
-            Console.WriteLine(name);
             
-            //TypeBuilder typeBuilder = compositeType.DefineNestedType(name, TypeAttributes.NestedPublic);
-            TypeBuilder typeBuilder = myModule.DefineType($"Internal{name}",
+            TypeBuilder typeBuilder = myModule.DefineType(name,
                 TypeAttributes.Public);
-            
             FieldBuilder composite = typeBuilder.DefineField($"_this", 
                 compositeType, FieldAttributes.Public);
 

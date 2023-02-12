@@ -1,4 +1,5 @@
 ﻿using System;
+using InterfaceBuilder;
 
 public class CompositeDecorator<T> : IItemsHandler<T>
 {

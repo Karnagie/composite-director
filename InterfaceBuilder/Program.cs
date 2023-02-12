@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using InterfaceBuilder.CompositeGeneration;
 
 namespace InterfaceBuilder
 {

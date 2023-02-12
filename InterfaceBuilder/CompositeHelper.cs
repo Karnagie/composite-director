@@ -1,41 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using InterfaceBuilder;
 
-public static class CompositeHelper
+namespace InterfaceBuilder
 {
-    private static readonly HashSet<ILayer> Stash = new();
-    public static ILayer Last => Stash.Last();
-
-    public static void Group<T>(Action<T[]> process, IPool<T> composite)
+    public static class CompositeHelper
     {
-        Stash.Add(new CompositeDecorator<T>(process, composite.Items.ToArray()));
-    }
+        private static readonly HashSet<ILayer> Stash = new();
+        public static ILayer Last => Stash.Last();
 
-    public static void Perform()
-    {
-        foreach (var layer in Stash)
+        public static void Group<T>(Action<T[]> process, IPool<T> composite)
         {
-            layer.Perform();
+            Stash.Add(new CompositeDecorator<T>(process, composite.Items.ToArray()));
         }
-        Stash.Clear();
+
+        public static void Perform()
+        {
+            foreach (var layer in Stash)
+            {
+                layer.Perform();
+            }
+            Stash.Clear();
+        }
     }
-}
 
 
-public interface ILayer
-{
-    void Perform(); 
-    void Apply(ICommand command);
-}
+    public interface ILayer
+    {
+        void Perform(); 
+        void Apply(ICommand command);
+    }
 
-public interface IItemsHandler<T> : ILayer
-{
-    T[] Items { get; }
-}
+    public interface IItemsHandler<T> : ILayer
+    {
+        T[] Items { get; }
+    }
 
-public interface ICommand
-{
-    T[] Do<T>(T[] items);
+    public interface ICommand
+    {
+        T[] Do<T>(T[] items);
+    }
 }
