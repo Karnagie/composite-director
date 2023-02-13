@@ -32,7 +32,7 @@ namespace InterfaceBuilder.CompositeGeneration
             CreateMethod(typeBuilder, composite, internalMethod, itemsType, fields.ToArray());
 
             Type myType = typeBuilder.CreateType();
-            //object instance = Activator.CreateInstance(myType!);
+            
             return myType;
         }
 

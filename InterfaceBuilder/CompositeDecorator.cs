@@ -1,24 +1,26 @@
 ﻿using System;
-using InterfaceBuilder;
 
-public class CompositeDecorator<T> : IItemsHandler<T>
+namespace InterfaceBuilder
 {
-    public Action<T[]> Process;
-    public T[] Items { get; private set; }
-
-    public CompositeDecorator(Action<T[]> process,  T[] items)
+    public class CompositeDecorator<T> : IItemsHandler<T>
     {
-        Items = items;
-        Process = process;
-    }
+        public Action<T[]> Process;
+        public T[] Items { get; private set; }
+
+        public CompositeDecorator(Action<T[]> process,  T[] items)
+        {
+            Items = items;
+            Process = process;
+        }
     
-    public void Perform()
-    {
-        Process.Invoke(Items);
-    }
+        public void Perform()
+        {
+            Process.Invoke(Items);
+        }
 
-    public void Apply(ICommand command)
-    {
-        Items = command.Do(Items);
+        public void Apply(ICommand command)
+        {
+            Items = command.Do(Items);
+        }
     }
 }
