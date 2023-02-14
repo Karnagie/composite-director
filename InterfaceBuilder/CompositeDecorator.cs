@@ -1,21 +1,22 @@
 ﻿using System;
+using InterfaceBuilder.Mocks;
 
 namespace InterfaceBuilder
 {
     public class CompositeDecorator<T> : IItemsHandler<T>
     {
-        public Action<T[]> Process;
+        private readonly Action<T[]> _process;
         public T[] Items { get; private set; }
 
         public CompositeDecorator(Action<T[]> process,  T[] items)
         {
             Items = items;
-            Process = process;
+            _process = process;
         }
     
         public void Perform()
         {
-            Process.Invoke(Items);
+            _process.Invoke(Items);
         }
 
         public void Apply(ICommand command)

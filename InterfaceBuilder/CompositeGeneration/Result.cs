@@ -1,5 +1,8 @@
-﻿public enum Result
+﻿namespace InterfaceBuilder.CompositeGeneration
 {
-    Ok,
-    Error,
+    public enum Result
+    {
+        Ok,
+        Error,
+    }
 }

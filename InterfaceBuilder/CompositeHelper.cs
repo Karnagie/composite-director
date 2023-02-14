@@ -6,7 +6,7 @@ namespace InterfaceBuilder
 {
     public static class CompositeHelper
     {
-        private static readonly HashSet<ILayer> Stash = new();
+        private static readonly HashSet<ILayer> Stash = new ();
         public static ILayer Last => Stash.Last();
 
         public static void Group<T>(Action<T[]> process, IPool<T> composite)
@@ -22,6 +22,18 @@ namespace InterfaceBuilder
             }
             Stash.Clear();
         }
+        
+        public static void PerformLast()
+        {
+            var layer = Last;
+            layer.Perform();
+            Stash.Remove(Last);
+        }
+
+        public static void Reset()
+        {
+            Stash.Clear();
+        }
     }
 
 
@@ -31,7 +43,7 @@ namespace InterfaceBuilder
         void Apply(ICommand command);
     }
 
-    public interface IItemsHandler<T> : ILayer
+    public interface IItemsHandler<out T> : ILayer
     {
         T[] Items { get; }
     }

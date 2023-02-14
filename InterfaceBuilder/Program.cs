@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using InterfaceBuilder.CompositeGeneration;
+using InterfaceBuilder.Mocks;
 
 namespace InterfaceBuilder
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var mocks = new List<IFooable>
             {
@@ -27,10 +28,9 @@ namespace InterfaceBuilder
             
             IFooable fooable = instance as IFooable;
 
-            fooable!.Foo();
-            
-            CompositeHelper.Perform();
-            Console.Read();
+            fooable.FooWithArgs("name").Now();
+
+            //CompositeHelper.Perform();
         }
     }
 

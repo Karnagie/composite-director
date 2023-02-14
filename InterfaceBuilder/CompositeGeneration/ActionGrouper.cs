@@ -4,9 +4,9 @@ namespace InterfaceBuilder.CompositeGeneration
 {
     public static class ActionGrouper
     {
-        public static Result ForAll(this Result result)
+        public static Result Now(this Result result)
         {
-            // TODO remove
+            CompositeHelper.PerformLast();
             return default;
         }
         
