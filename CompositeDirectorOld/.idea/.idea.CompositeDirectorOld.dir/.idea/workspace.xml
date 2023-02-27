@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="40d0a524-6dd4-4331-a300-d15729a34f54" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CD/CompositeDirector.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeDirector.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders/CompositeContainer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders/CompositeContainer.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders/CompositeScope.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders/CompositeScope.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders/ICompositeContainer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders/ICompositeContainer.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders/ICompositeScope.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders/ICompositeScope.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders/IServiceContainerExecutor.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/CompositeProviders/IServiceContainerExecutor.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/Composites.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/Composites/Composite.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/Composites/Composite.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/Composites/IProcessComposite.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/Composites/IProcessComposite.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/Composites/ProcessComposite.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/Composites/ProcessComposite.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/Executors.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/Executors/IProcessExecutor.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CD/Executors/IProcessExecutor.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CompositeDirectorOld.csproj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Debug.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../InterfaceBuilder.sln" beforeDir="false" afterPath="$PROJECT_DIR$/../InterfaceBuilder.sln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../InterfaceBuilder.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/../InterfaceBuilder.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../InterfaceBuilder/CompositeGeneration/CompositeCreator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../InterfaceBuilder/CompositeGeneration/CompositeCreator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../InterfaceBuilder/DebugClass.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../InterfaceBuilder/ClassForCheckingIL.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../InterfaceBuilder/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../InterfaceBuilder/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../InterfaceBuilder/bin/Debug/net5.0/InterfaceBuilder.dll" beforeDir="false" afterPath="$PROJECT_DIR$/../InterfaceBuilder/bin/Debug/net5.0/InterfaceBuilder.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../InterfaceBuilder/bin/Debug/net5.0/InterfaceBuilder.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/../InterfaceBuilder/bin/Debug/net5.0/InterfaceBuilder.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../InterfaceBuilder/obj/Debug/net5.0/InterfaceBuilder.dll" beforeDir="false" afterPath="$PROJECT_DIR$/../InterfaceBuilder/obj/Debug/net5.0/InterfaceBuilder.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../InterfaceBuilder/obj/Debug/net5.0/InterfaceBuilder.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/../InterfaceBuilder/obj/Debug/net5.0/InterfaceBuilder.pdb" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ProjectId" id="2MInoIji9Qd1hOdBUqvJ9wemE5C" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="40d0a524-6dd4-4331-a300-d15729a34f54" name="Changes" comment="" />
+      <created>1677464137773</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1677464137773</updated>
+      <workItem from="1677464139364" duration="3000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+</project>

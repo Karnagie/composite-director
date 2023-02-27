@@ -28,15 +28,10 @@ namespace InterfaceBuilder
             
             IFooable fooable = instance as IFooable;
 
-            fooable.FooWithArgs("name").Now();
+            //fooable.Foo().Now();
+            fooable.FooWithArgs("'passed parameter'").Now();
 
             //CompositeHelper.Perform();
         }
-    }
-
-
-    public interface Test<out T>
-    {
-        void Group(Action<T> s);
     }
 }
