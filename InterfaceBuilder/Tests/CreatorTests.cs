@@ -4,7 +4,6 @@ using InterfaceBuilder.CompositeGeneration;
 using InterfaceBuilder.Mocks;
 using Moq;
 using NUnit.Framework;
-using Mock = Moq.Mock;
 
 namespace InterfaceBuilder.Tests
 {

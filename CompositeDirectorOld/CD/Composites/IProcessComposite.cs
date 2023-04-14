@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CompositeDirectorOld.CD.Executors;
+﻿using CompositeDirectorOld.CD.Executors;
 
 namespace CompositeDirectorOld.CD.Composites
 {

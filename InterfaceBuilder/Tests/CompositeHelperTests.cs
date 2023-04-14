@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using InterfaceBuilder.CompositeGeneration;
 using InterfaceBuilder.Mocks;
 using NUnit.Framework;
-using Moq;
 using Mock = Moq.Mock;
 
 namespace InterfaceBuilder.Tests

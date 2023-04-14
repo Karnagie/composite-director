@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using InterfaceBuilder.CompositeGeneration;
 using InterfaceBuilder.Mocks;
 
@@ -28,7 +27,7 @@ namespace InterfaceBuilder
             
             IFooable fooable = instance as IFooable;
 
-            //fooable.Foo().Now();
+            fooable!.Foo().Now();
             fooable.FooWithArgs("'passed parameter'").Now();
 
             //CompositeHelper.Perform();

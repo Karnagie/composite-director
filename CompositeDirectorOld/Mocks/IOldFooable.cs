@@ -1,6 +1,4 @@
-using CompositeDirectorOld.CD.Composites;
 using CompositeDirectorOld.CD.Executors;
-using InterfaceBuilder.CompositeGeneration;
 
 namespace CompositeDirectorOld.Mocks
 {

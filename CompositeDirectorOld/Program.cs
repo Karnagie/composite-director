@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CompositeDirectorOld.CD;
 using CompositeDirectorOld.CD.Composites;
 using CompositeDirectorOld.Mocks;
