@@ -98,9 +98,6 @@ namespace InterfaceBuilder.CompositeGeneration
             ILGenerator lout = builder.GetILGenerator();
             lout.Emit(OpCodes.Ldarg_0);
             lout.Emit(OpCodes.Ldfld, field);
-            // IL_0000: ldarg.0      // this
-            // IL_0001: ldfld        class [System.Collections]System.Collections.Generic.List`1<class ITest> TestComposite::'<Items>k__BackingField'
-            // IL_0006: ret
             
             lout.Emit(OpCodes.Ret);
 
@@ -246,7 +243,7 @@ namespace InterfaceBuilder.CompositeGeneration
             
             var intern = internalCopy;
 
-            var groupMethod = typeof(CompositeHelper).GetMethod("Group").MakeGenericMethod(generic);
+            var groupMethod = typeof(CompositeHelper).GetMethod("Group")!.MakeGenericMethod(generic);
             var intern1 = genericActionType.GetConstructors()[0];
             
             var jump = lout.DefineLabel();
