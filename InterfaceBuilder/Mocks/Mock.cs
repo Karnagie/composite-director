@@ -3,7 +3,7 @@ using InterfaceBuilder.CompositeGeneration;
 
 namespace InterfaceBuilder.Mocks
 {
-    public interface IFooable
+    public interface IFooable : IPoolItem
     {
         Result Foo();
         Result FooWithArgs(int name);
@@ -42,6 +42,13 @@ namespace InterfaceBuilder.Mocks
             Console.WriteLine("Mock saved");
             return default;
         }
+
+        public void Dispose()
+        {
+            Disposed?.Invoke();
+        }
+
+        public event Action Disposed;
     }
 
     public class NotSavableMock : IFooable
@@ -69,6 +76,13 @@ namespace InterfaceBuilder.Mocks
             Console.WriteLine($"not save overloaded {name}");
             return default;
         }
+
+        public void Dispose()
+        {
+            Disposed?.Invoke();
+        }
+
+        public event Action Disposed;
     }
 
     public interface ISavable

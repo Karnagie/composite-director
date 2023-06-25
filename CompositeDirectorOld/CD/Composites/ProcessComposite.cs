@@ -16,7 +16,7 @@ namespace CompositeDirectorOld.CD.Composites
         public void TryAdd(IProcessExecutor item)
         {
             if (item == this)
-                throw new Exception($"Try adding service {this.GetType().Name} to itself");
+                throw new Exception($"Try adding service {GetType().Name} to itself");
             
             if (item is T matching)
             {
@@ -41,10 +41,10 @@ namespace CompositeDirectorOld.CD.Composites
 
         public void Dispose()
         {
-            foreach (T representation in _items)
+            foreach (T executor in _items)
             {
-                representation.Disposed -= TryRemove;
-                representation.Dispose();
+                executor.Disposed -= TryRemove;
+                executor.Dispose();
             }
             _items.Clear();
             

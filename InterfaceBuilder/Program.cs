@@ -28,7 +28,10 @@ namespace InterfaceBuilder
             IFooable fooable = instance as IFooable;
 
             fooable!.Foo().Now();
+            mocks[0].Dispose();
+            mocks[1].Dispose();
             fooable.FooWithArgs("'passed parameter'").Now();
+            fooable.Dispose();
 
             //CompositeHelper.Perform();
         }

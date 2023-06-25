@@ -8,7 +8,7 @@ namespace InterfaceBuilder.CompositeGeneration
 {
     public class CompositeCreator
     {
-        public IPool<T> Create<T>() where T : class
+        public IPool<T> Create<T>() where T : class, IPoolItem
         {
             AssemblyName assemblyName = new AssemblyName
             {
@@ -34,7 +34,7 @@ namespace InterfaceBuilder.CompositeGeneration
             typeBuilder.AddInterfaceImplementation(genericPoolType);
 
             FieldBuilder fieldBuilder = typeBuilder.DefineField("Items", typeof(List<T>), FieldAttributes.Public);
-            CreateGetItemsMethod(typeBuilder, fieldBuilder, typeof(T));
+            var getItemsMethod = CreateGetItemsMethod(typeBuilder, fieldBuilder, typeof(T));
             
             
             var poolMethods = genericPoolType.GetMethods();
@@ -52,6 +52,15 @@ namespace InterfaceBuilder.CompositeGeneration
                     typeBuilder.DefineMethodOverride(addMethod, method);
                 }
             }
+
+            var disposeField = typeBuilder.DefineField("Disposed", typeof(Action), FieldAttributes.Private);
+            var disposeEvent = typeBuilder.DefineEvent("Disposed", EventAttributes.None, typeof(Action));
+            var disposeMethod = typeof(IDisposable).GetMethods()[0];
+            var dispose = CreateDisposeMethod(typeBuilder, getItemsMethod, disposeEvent, typeof(T), disposeField);
+            typeBuilder.DefineMethodOverride(dispose, disposeMethod);
+            CreateAddDisposedMethod(typeBuilder, disposeField, disposeEvent);
+            CreateRemoveDisposedMethod(typeBuilder, disposeField, disposeEvent);
+
 
             var methods = typeof(T).GetMethods();
             foreach (var method in methods)
@@ -80,6 +89,46 @@ namespace InterfaceBuilder.CompositeGeneration
             object instance = Activator.CreateInstance(myType!);
             instance!.GetType().GetField("Items")!.SetValue(instance, new List<T>());
             return instance as IPool<T>;
+        }
+
+        private void CreateRemoveDisposedMethod(TypeBuilder typeBuilder, FieldBuilder disposeField, EventBuilder disposeEvent)
+        {
+            var removeMethod = typeBuilder.DefineMethod("remove_Disposed",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
+                CallingConventions.Standard | CallingConventions.HasThis,
+                typeof(void),
+                new[] { typeof(Action) });
+            var remove = typeof(Delegate).GetMethod("Remove", new[] { typeof(Delegate), typeof(Delegate) });
+            var removator = removeMethod.GetILGenerator();
+            removator.Emit(OpCodes.Ldarg_0);
+            removator.Emit(OpCodes.Ldarg_0);
+            removator.Emit(OpCodes.Ldfld, disposeField);
+            removator.Emit(OpCodes.Ldarg_1);
+            removator.Emit(OpCodes.Call, remove);
+            removator.Emit(OpCodes.Castclass, typeof(Action));
+            removator.Emit(OpCodes.Stfld, disposeField);
+            removator.Emit(OpCodes.Ret);
+            disposeEvent.SetRemoveOnMethod(removeMethod);
+        }
+
+        private void CreateAddDisposedMethod(TypeBuilder typeBuilder, FieldBuilder disposeField, EventBuilder eventBuilder)
+        {
+            var addMethod = typeBuilder.DefineMethod("add_Disposed",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
+                CallingConventions.Standard | CallingConventions.HasThis,
+                typeof(void),
+                new[] { typeof(Action)});
+            var generator = addMethod.GetILGenerator();
+            var combine = typeof(Delegate).GetMethod("Combine", new[] { typeof(Delegate), typeof(Delegate) });
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldfld, disposeField);
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, combine);
+            generator.Emit(OpCodes.Castclass, typeof(Action));
+            generator.Emit(OpCodes.Stfld, disposeField);
+            generator.Emit(OpCodes.Ret);
+            eventBuilder.SetAddOnMethod(addMethod);
         }
 
         private MethodInfo CreateGetItemsMethod(TypeBuilder typeBuilder, FieldBuilder items, Type generic)
@@ -174,6 +223,77 @@ namespace InterfaceBuilder.CompositeGeneration
             return builder;
         }
 
+        private MethodInfo CreateDisposeMethod(TypeBuilder typeBuilder, MethodInfo getItems,
+            EventBuilder disposeEvent, Type generic, FieldBuilder disposeField)
+        {
+            MethodBuilder builder = typeBuilder.DefineMethod(
+                $"Dispose",
+                MethodAttributes.Public | MethodAttributes.Virtual,
+                typeof(void),
+                Type.EmptyTypes);
+            
+            var poolType = typeof(List<>);
+            var genericPoolType = poolType.MakeGenericType(generic);
+            var getItem = genericPoolType.GetMethod("get_Item");
+            var getCount = genericPoolType.GetMethod("get_Count");
+            var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
+            var invoke = typeof(Action).GetMethod("Invoke");
+
+            ILGenerator lout = builder.GetILGenerator();
+            
+            var i = lout.DeclareLocal(typeof(Int32)); 
+            var item = lout.DeclareLocal(generic);
+            var v_2 = lout.DeclareLocal(typeof(bool));
+            
+            var jump = lout.DefineLabel();
+            var jump1 = lout.DefineLabel();
+            var jump2 = lout.DefineLabel();
+            var jump3 = lout.DefineLabel();
+            
+            lout.Emit(OpCodes.Ldc_I4_0);
+            lout.Emit(OpCodes.Stloc_0);
+            
+            lout.Emit(OpCodes.Br_S, jump);
+            
+            lout.MarkLabel(jump1);
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Call, getItems);
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Callvirt, getItem);
+            lout.Emit(OpCodes.Stloc_1);
+            lout.Emit(OpCodes.Ldloc_1);
+            lout.Emit(OpCodes.Callvirt, disposeMethod);
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Ldc_I4_1);
+            lout.Emit(OpCodes.Add);
+            lout.Emit(OpCodes.Stloc_0);
+            
+            lout.MarkLabel(jump);
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Call, getItems);
+            lout.Emit(OpCodes.Callvirt, getCount);
+            lout.Emit(OpCodes.Clt);
+            lout.Emit(OpCodes.Stloc_2);
+            
+            lout.Emit(OpCodes.Ldloc_2);
+            lout.Emit(OpCodes.Brtrue_S, jump1);//go
+            
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Ldfld, disposeField);
+            lout.Emit(OpCodes.Dup);
+            lout.Emit(OpCodes.Brtrue_S, jump2);//IL_003d
+            lout.Emit(OpCodes.Pop);
+            lout.Emit(OpCodes.Br_S, jump3);//43
+            lout.MarkLabel(jump2);
+            lout.Emit(OpCodes.Callvirt, invoke);
+            
+            lout.MarkLabel(jump3);
+            lout.Emit(OpCodes.Ret);
+
+            return builder;
+        }
+
         private MethodBuilder CreateAddMethod(TypeBuilder typeBuilder, FieldBuilder items, Type generic)
         {
             MethodBuilder builder = typeBuilder.DefineMethod(
@@ -195,7 +315,7 @@ namespace InterfaceBuilder.CompositeGeneration
 
             return builder;
         }
-        
+
         private MethodBuilder CreateRemoveMethod(TypeBuilder typeBuilder, FieldBuilder items, Type generic)
         {
             MethodBuilder builder = typeBuilder.DefineMethod(
@@ -289,7 +409,7 @@ namespace InterfaceBuilder.CompositeGeneration
             var genericActionType = actionType.MakeGenericType(genericArray);
             var genericActionTypeConstructor = genericActionType.GetConstructors()[0];
 
-            var groupMethod = typeof(CompositeHelper).GetMethod("Group").MakeGenericMethod(generic);
+            var groupMethod = typeof(CompositeHelper).GetMethod("Group")!.MakeGenericMethod(generic);
             
             ConstructorInfo internalClassConstructor = internalClass.GetConstructors()[0];
             FieldInfo _this = internalClass.GetField("_this");

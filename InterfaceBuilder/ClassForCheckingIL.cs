@@ -61,9 +61,22 @@ namespace InterfaceBuilder
         {
             private TestComposite _composite;
         }
+
+        public void Dispose()
+        {
+            for (var i = 0; i < Items.Count; i++)
+            {
+                var item = Items[i];
+                item.Dispose();
+            }
+
+            Disposed?.Invoke();
+        }
+
+        public event Action Disposed;
     }
 
-    public interface ITest
+    public interface ITest : IPoolItem
     {
         Result Foo();
         Result FooWithArgs(string value);
@@ -92,17 +105,30 @@ namespace InterfaceBuilder
             return default;
         }
 
-        public void FooWithTwoArgs(ITest[] tests, string value1, int i, string valu, int val, int val1)
+        public void FooWithTwoArgs(ITest[] tests, string value1, int i, string value, int val, int val1)
         {
             throw new NotImplementedException();
         }
+
+        public void Dispose()
+        {
+            Console.WriteLine("Dispose");
+            Disposed?.Invoke();
+        }
+
+        public event Action Disposed;
     }
 
-    public interface IPool<T> 
+    public interface IPool<T> : IPoolItem where T : IPoolItem
     {
         void Add(T item);
         void Remove(T item);
     
         List<T> Items { get; }
+    }
+
+    public interface IPoolItem : IDisposable
+    {
+        event Action Disposed;
     }
 }

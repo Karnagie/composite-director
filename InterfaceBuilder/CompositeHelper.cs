@@ -9,7 +9,7 @@ namespace InterfaceBuilder
         private static readonly HashSet<ILayer> Stash = new ();
         public static ILayer Last => Stash.Last();
 
-        public static void Group<T>(Action<T[]> process, IPool<T> composite)
+        public static void Group<T>(Action<T[]> process, IPool<T> composite) where T : IPoolItem
         {
             Stash.Add(new CompositeDecorator<T>(process, composite.Items.ToArray()));
         }
