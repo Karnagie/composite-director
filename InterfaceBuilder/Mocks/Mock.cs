@@ -11,6 +11,21 @@ namespace InterfaceBuilder.Mocks
         Result FooWithArgs(string name);
     }
 
+    public interface ISpeakable : IPoolItem
+    {
+        Result Say(string text);
+    }
+
+    public class SpeakableEntity : Entity, ISpeakable
+    {
+        public Result Say(string text)
+        {
+            Console.WriteLine($"says: {text}");
+            
+            return default;
+        }
+    }
+
     public class Mock : IFooable, ISavable
     {
         public Result Foo()

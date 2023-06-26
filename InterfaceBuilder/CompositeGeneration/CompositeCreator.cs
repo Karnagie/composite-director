@@ -157,26 +157,6 @@ namespace InterfaceBuilder.CompositeGeneration
             var v_1 = lout.DeclareLocal(typeof(Action));
             var v_2 = lout.DeclareLocal(typeof(Action));
             
-            // lout.Emit(OpCodes.Ldarg_0);
-            // lout.Emit(OpCodes.Ldarg_0);
-            // lout.Emit(OpCodes.Ldfld, disposeField);
-            // lout.Emit(OpCodes.Ldarg_1);
-            // lout.Emit(OpCodes.Call, remove);
-            // lout.Emit(OpCodes.Castclass, typeof(Action));
-            // lout.Emit(OpCodes.Stfld, disposeField);
-            // lout.Emit(OpCodes.Ret);
-            //
-            // IL_0000: ldarg.0      // this
-            // IL_0001: ldfld        class [System.Runtime]System.Action InterfaceBuilder.TestComposite::Disposed
-            // IL_0006: stloc.0      // V_0
-            // // start of loop, entry point: IL_0007
-            // IL_0007: ldloc.0      // V_0
-            // IL_0008: stloc.1      // V_1
-            // IL_0009: ldloc.1      // V_1
-            // IL_000a: ldarg.1      // 'value'
-            // IL_000b: call         class [System.Runtime]System.Delegate [System.Runtime]System.Delegate::Remove(class [System.Runtime]System.Delegate, class [System.Runtime]System.Delegate)
-
-            
             lout.Emit(OpCodes.Ldarg_0);
             lout.Emit(OpCodes.Ldfld, disposeField);
             lout.Emit(OpCodes.Stloc_0);

@@ -16,6 +16,14 @@ namespace InterfaceBuilder
                 new NotSavableMock(),
                 new Mock(),
             };
+            var speakables = new List<ISpeakable>
+            {
+                new SpeakableEntity(),
+                new SpeakableEntity(),
+                new SpeakableEntity(),
+                new SpeakableEntity(),
+                new SpeakableEntity(),
+            };
             
             var creator = new CompositeCreator();
             
@@ -24,8 +32,18 @@ namespace InterfaceBuilder
             {
                 instance.Add(mock);
             }
-            
             IFooable fooable = instance as IFooable;
+            
+            var instanceSpeakable = creator.Create<ISpeakable>();
+            foreach (var mock in speakables)
+            {
+                instanceSpeakable.Add(mock);
+            }
+            ISpeakable speakable = instanceSpeakable as ISpeakable;
+
+            speakable!.Say("bark").Now();
+            speakables[0].Dispose();
+            speakable!.Say("bark").Now();
 
             fooable!.Foo().Now();
             mocks[0].Dispose();
