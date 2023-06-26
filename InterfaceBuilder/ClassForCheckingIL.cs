@@ -6,16 +6,30 @@ namespace InterfaceBuilder
 {
     public class TestComposite : IPool<ITest>, ITest
     {
+        private Dictionary<ITest, Action> _removeActions = new();
+
         public List<ITest> Items { get; } = new ();
 
         public void Add(ITest item)
         {
             Items.Add(item);
+            
+            Action removing = Removing(item);
+            _removeActions.Add(item, removing);
+            item.Disposed += removing;
         }
-    
+
         public void Remove(ITest item)
         {
             Items.Remove(item);
+
+            item.Disposed -= _removeActions[item];
+            _removeActions.Remove(item);
+        }
+
+        private Action Removing(ITest item)
+        {
+            return () => Remove(item);
         }
 
         public Result Foo()
@@ -69,7 +83,8 @@ namespace InterfaceBuilder
                 var item = Items[i];
                 item.Dispose();
             }
-
+            Items.Clear();
+            
             Disposed?.Invoke();
         }
 

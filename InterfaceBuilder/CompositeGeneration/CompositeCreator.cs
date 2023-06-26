@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 
 namespace InterfaceBuilder.CompositeGeneration
 {
@@ -36,30 +37,31 @@ namespace InterfaceBuilder.CompositeGeneration
             FieldBuilder fieldBuilder = typeBuilder.DefineField("Items", typeof(List<T>), FieldAttributes.Public);
             var getItemsMethod = CreateGetItemsMethod(typeBuilder, fieldBuilder, typeof(T));
             
+            FieldBuilder dictionaryBuilder = typeBuilder.DefineField("_removeActions", typeof(Dictionary<T, Action>), FieldAttributes.Private);
             
-            var poolMethods = genericPoolType.GetMethods();
-            foreach (var method in poolMethods)
-            {
-                //todo check parameters
-                if (method.Name == "Add")
-                {
-                    var addMethod = CreateAddMethod(typeBuilder, fieldBuilder, typeof(T));
-                    typeBuilder.DefineMethodOverride(addMethod, method);
-                }
-                else if (method.Name == "Remove")
-                {
-                    var addMethod = CreateRemoveMethod(typeBuilder, fieldBuilder, typeof(T));
-                    typeBuilder.DefineMethodOverride(addMethod, method);
-                }
-            }
-
             var disposeField = typeBuilder.DefineField("Disposed", typeof(Action), FieldAttributes.Private);
             var disposeEvent = typeBuilder.DefineEvent("Disposed", EventAttributes.None, typeof(Action));
             var disposeMethod = typeof(IDisposable).GetMethods()[0];
             var dispose = CreateDisposeMethod(typeBuilder, getItemsMethod, disposeEvent, typeof(T), disposeField);
             typeBuilder.DefineMethodOverride(dispose, disposeMethod);
-            CreateAddDisposedMethod(typeBuilder, disposeField, disposeEvent);
-            CreateRemoveDisposedMethod(typeBuilder, disposeField, disposeEvent);
+            var addDisposedMethod = CreateAddDisposedMethod(typeBuilder, disposeField, disposeEvent);
+            var removeDisposedMethod = CreateRemoveDisposedMethod(typeBuilder, disposeField, disposeEvent);
+
+            var removeMethodDeclaration = genericPoolType.GetMethod("Remove");
+            var removeMethod = CreateRemoveMethod(typeBuilder, fieldBuilder, typeof(T),
+                dictionaryBuilder, getItemsMethod);
+            typeBuilder.DefineMethodOverride(removeMethod, removeMethodDeclaration!);
+            
+            
+            var addMethodDeclaration = genericPoolType.GetMethod("Add");
+            var internalRemovingClassCreator = new InternalRemovingClassCreator();
+            var internalRemoving = internalRemovingClassCreator
+                .Create(myModule, typeBuilder, typeof(T),  removeMethod);
+            var removingMethod = CreateRemovingMethod(typeBuilder, typeof(T), internalRemoving);
+                    
+            var addMethod = CreateAddMethod(typeBuilder, fieldBuilder, typeof(T),
+                dictionaryBuilder, removingMethod);
+            typeBuilder.DefineMethodOverride(addMethod, addMethodDeclaration);
 
 
             var methods = typeof(T).GetMethods();
@@ -88,30 +90,121 @@ namespace InterfaceBuilder.CompositeGeneration
             Type myType = typeBuilder.CreateType();
             object instance = Activator.CreateInstance(myType!);
             instance!.GetType().GetField("Items")!.SetValue(instance, new List<T>());
+            instance!.GetType().GetField("_removeActions", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .SetValue(instance, new Dictionary<T, Action>());
             return instance as IPool<T>;
         }
 
-        private void CreateRemoveDisposedMethod(TypeBuilder typeBuilder, FieldBuilder disposeField, EventBuilder disposeEvent)
+        private MethodInfo CreateRemovingMethod(TypeBuilder typeBuilder, Type generic, Type internalClassBuilder)
+        {
+            var builder = typeBuilder.DefineMethod("Removing", MethodAttributes.Private | MethodAttributes.HideBySig,
+                typeof(Action),
+                new Type[] {generic});
+            
+            ILGenerator lout = builder.GetILGenerator();
+            
+            var internalClass = lout.DeclareLocal(internalClassBuilder);
+            var v_1 = lout.DeclareLocal(typeof(Action));
+            
+            ConstructorInfo internalClassConstructor = internalClassBuilder.GetConstructors()[0];
+            FieldInfo _this = internalClassBuilder.GetField("_this");
+            FieldInfo item = internalClassBuilder.GetField("_item");
+            MethodInfo removing = internalClassBuilder.GetMethod("Removing");
+            
+            var actionType = typeof(Action);
+            var actionTypeConstructor = actionType.GetConstructors()[0];
+
+            lout.Emit(OpCodes.Newobj, internalClassConstructor);
+            lout.Emit(OpCodes.Stloc_0);
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Stfld, _this);
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Ldarg_1);
+            lout.Emit(OpCodes.Stfld, item);
+            
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Ldftn, removing);
+            lout.Emit(OpCodes.Newobj, actionTypeConstructor); 
+            lout.Emit(OpCodes.Stloc_1);
+            lout.Emit(OpCodes.Ldloc_1);
+            
+            lout.Emit(OpCodes.Ret);
+
+            return builder;
+        }
+
+        private MethodInfo CreateRemoveDisposedMethod(TypeBuilder typeBuilder, FieldBuilder disposeField, EventBuilder disposeEvent)
         {
             var removeMethod = typeBuilder.DefineMethod("remove_Disposed",
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
                 CallingConventions.Standard | CallingConventions.HasThis,
                 typeof(void),
                 new[] { typeof(Action) });
+            
             var remove = typeof(Delegate).GetMethod("Remove", new[] { typeof(Delegate), typeof(Delegate) });
-            var removator = removeMethod.GetILGenerator();
-            removator.Emit(OpCodes.Ldarg_0);
-            removator.Emit(OpCodes.Ldarg_0);
-            removator.Emit(OpCodes.Ldfld, disposeField);
-            removator.Emit(OpCodes.Ldarg_1);
-            removator.Emit(OpCodes.Call, remove);
-            removator.Emit(OpCodes.Castclass, typeof(Action));
-            removator.Emit(OpCodes.Stfld, disposeField);
-            removator.Emit(OpCodes.Ret);
+            var disposed = disposeField;
+            var methods = typeof(Interlocked).GetMethods()
+                .Where((info => info.Name == "CompareExchange" && info.GetParameters().Length == 3)).ToArray()[6];
+            var compareExchange =
+                methods.MakeGenericMethod(new Type[]{typeof(Action)});
+                
+            var lout = removeMethod.GetILGenerator();
+            
+            var jump = lout.DefineLabel();
+
+            var v_0 = lout.DeclareLocal(typeof(Action));
+            var v_1 = lout.DeclareLocal(typeof(Action));
+            var v_2 = lout.DeclareLocal(typeof(Action));
+            
+            // lout.Emit(OpCodes.Ldarg_0);
+            // lout.Emit(OpCodes.Ldarg_0);
+            // lout.Emit(OpCodes.Ldfld, disposeField);
+            // lout.Emit(OpCodes.Ldarg_1);
+            // lout.Emit(OpCodes.Call, remove);
+            // lout.Emit(OpCodes.Castclass, typeof(Action));
+            // lout.Emit(OpCodes.Stfld, disposeField);
+            // lout.Emit(OpCodes.Ret);
+            //
+            // IL_0000: ldarg.0      // this
+            // IL_0001: ldfld        class [System.Runtime]System.Action InterfaceBuilder.TestComposite::Disposed
+            // IL_0006: stloc.0      // V_0
+            // // start of loop, entry point: IL_0007
+            // IL_0007: ldloc.0      // V_0
+            // IL_0008: stloc.1      // V_1
+            // IL_0009: ldloc.1      // V_1
+            // IL_000a: ldarg.1      // 'value'
+            // IL_000b: call         class [System.Runtime]System.Delegate [System.Runtime]System.Delegate::Remove(class [System.Runtime]System.Delegate, class [System.Runtime]System.Delegate)
+
+            
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Ldfld, disposeField);
+            lout.Emit(OpCodes.Stloc_0);
+            
+            lout.MarkLabel(jump);
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Stloc_1);
+            lout.Emit(OpCodes.Ldloc_1);
+            lout.Emit(OpCodes.Ldarg_1);
+            lout.Emit(OpCodes.Call, remove);
+            lout.Emit(OpCodes.Castclass, typeof(Action));
+            lout.Emit(OpCodes.Stloc_2);
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Ldflda, disposed);
+            lout.Emit(OpCodes.Ldloc_2);
+            lout.Emit(OpCodes.Ldloc_1);
+            lout.Emit(OpCodes.Call, compareExchange);
+            lout.Emit(OpCodes.Stloc_0);
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Ldloc_1);
+            lout.Emit(OpCodes.Bne_Un_S, jump);
+            lout.Emit(OpCodes.Ret);
+            
             disposeEvent.SetRemoveOnMethod(removeMethod);
+            return removeMethod;
         }
 
-        private void CreateAddDisposedMethod(TypeBuilder typeBuilder, FieldBuilder disposeField, EventBuilder eventBuilder)
+        private MethodInfo CreateAddDisposedMethod(TypeBuilder typeBuilder, FieldBuilder disposeField, EventBuilder eventBuilder)
         {
             var addMethod = typeBuilder.DefineMethod("add_Disposed",
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
@@ -129,6 +222,8 @@ namespace InterfaceBuilder.CompositeGeneration
             generator.Emit(OpCodes.Stfld, disposeField);
             generator.Emit(OpCodes.Ret);
             eventBuilder.SetAddOnMethod(addMethod);
+
+            return addMethod;
         }
 
         private MethodInfo CreateGetItemsMethod(TypeBuilder typeBuilder, FieldBuilder items, Type generic)
@@ -235,6 +330,7 @@ namespace InterfaceBuilder.CompositeGeneration
             var poolType = typeof(List<>);
             var genericPoolType = poolType.MakeGenericType(generic);
             var getItem = genericPoolType.GetMethod("get_Item");
+            var clear = genericPoolType.GetMethod("Clear");
             var getCount = genericPoolType.GetMethod("get_Count");
             var disposeMethod = typeof(IDisposable).GetMethod("Dispose");
             var invoke = typeof(Action).GetMethod("Invoke");
@@ -272,21 +368,25 @@ namespace InterfaceBuilder.CompositeGeneration
             lout.Emit(OpCodes.Ldloc_0);
             lout.Emit(OpCodes.Ldarg_0);
             lout.Emit(OpCodes.Call, getItems);
-            lout.Emit(OpCodes.Callvirt, getCount);
+            lout.Emit(OpCodes.Callvirt, getCount!);
             lout.Emit(OpCodes.Clt);
             lout.Emit(OpCodes.Stloc_2);
             
             lout.Emit(OpCodes.Ldloc_2);
-            lout.Emit(OpCodes.Brtrue_S, jump1);//go
+            lout.Emit(OpCodes.Brtrue_S, jump1);
+            
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Call, getItems);
+            lout.Emit(OpCodes.Callvirt, clear!);
             
             lout.Emit(OpCodes.Ldarg_0);
             lout.Emit(OpCodes.Ldfld, disposeField);
             lout.Emit(OpCodes.Dup);
-            lout.Emit(OpCodes.Brtrue_S, jump2);//IL_003d
+            lout.Emit(OpCodes.Brtrue_S, jump2);
             lout.Emit(OpCodes.Pop);
-            lout.Emit(OpCodes.Br_S, jump3);//43
+            lout.Emit(OpCodes.Br_S, jump3);
             lout.MarkLabel(jump2);
-            lout.Emit(OpCodes.Callvirt, invoke);
+            lout.Emit(OpCodes.Callvirt, invoke!);
             
             lout.MarkLabel(jump3);
             lout.Emit(OpCodes.Ret);
@@ -294,7 +394,8 @@ namespace InterfaceBuilder.CompositeGeneration
             return builder;
         }
 
-        private MethodBuilder CreateAddMethod(TypeBuilder typeBuilder, FieldBuilder items, Type generic)
+        private MethodBuilder CreateAddMethod(TypeBuilder typeBuilder, FieldBuilder items, Type generic, 
+            FieldInfo removeDictionary, MethodInfo removing)
         {
             MethodBuilder builder = typeBuilder.DefineMethod(
                 $"Add",
@@ -305,37 +406,81 @@ namespace InterfaceBuilder.CompositeGeneration
             FieldInfo field = items;
             var add = field.FieldType.GetMethod("Add");
 
+            var addDisposed = typeof(IPoolItem).GetMethod("add_Disposed");
+
+            var dictionaryAdd = removeDictionary.FieldType.GetMethod("Add");
+            
             ILGenerator lout = builder.GetILGenerator();
+
+            var removingAction = lout.DeclareLocal(typeof(Action));
+            
             lout.Emit(OpCodes.Ldarg_0);
             lout.Emit(OpCodes.Ldfld, field);
             lout.Emit(OpCodes.Ldarg_1);
             lout.Emit(OpCodes.Callvirt, add!);
+            
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Ldarg_1);
+            lout.Emit(OpCodes.Call, removing!);
+            lout.Emit(OpCodes.Stloc_0);
+            
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Ldfld, removeDictionary);
+            lout.Emit(OpCodes.Ldarg_1);
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Callvirt, dictionaryAdd!);
+            
+            lout.Emit(OpCodes.Ldarg_1);
+            lout.Emit(OpCodes.Ldloc_0);
+            lout.Emit(OpCodes.Callvirt, addDisposed);
             
             lout.Emit(OpCodes.Ret);
 
             return builder;
         }
 
-        private MethodBuilder CreateRemoveMethod(TypeBuilder typeBuilder, FieldBuilder items, Type generic)
+        private MethodBuilder CreateRemoveMethod(TypeBuilder typeBuilder, FieldBuilder items, Type generic,
+            FieldInfo removeDictionary, MethodInfo getItems)
         {
             MethodBuilder builder = typeBuilder.DefineMethod(
                 $"Remove",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof(void),
-                new Type[] {generic});
-            
+                new [] {generic});
+
             FieldInfo field = items;
             var remove = field.FieldType.GetMethod("Remove");
 
+            var getItem = removeDictionary.FieldType.GetMethod("get_Item");
+            var removeFromDictionary = 
+                removeDictionary.FieldType.GetMethods()
+                    .Where(info => info.Name == "Remove" && info.GetParameters().Length == 1).ToArray()[0];
+            
+            var item_removeDisposed = typeof(IPoolItem).GetMethod("remove_Disposed");
+
             ILGenerator lout = builder.GetILGenerator();
+            
             lout.Emit(OpCodes.Ldarg_0);
-            lout.Emit(OpCodes.Ldfld, field);
+            lout.Emit(OpCodes.Call, getItems);
             lout.Emit(OpCodes.Ldarg_1);
             lout.Emit(OpCodes.Callvirt, remove!);
             lout.Emit(OpCodes.Pop);
+            
+            lout.Emit(OpCodes.Ldarg_1);
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Ldfld, removeDictionary);
+            lout.Emit(OpCodes.Ldarg_1);
+            lout.Emit(OpCodes.Callvirt, getItem!); 
+            lout.Emit(OpCodes.Callvirt, item_removeDisposed);
+            
+            lout.Emit(OpCodes.Ldarg_0);
+            lout.Emit(OpCodes.Ldfld, removeDictionary);
+            lout.Emit(OpCodes.Ldarg_1);
+            lout.Emit(OpCodes.Callvirt, removeFromDictionary!);
+            lout.Emit(OpCodes.Pop);
 
             lout.Emit(OpCodes.Ret);
-
+            
             return builder;
         }
 
