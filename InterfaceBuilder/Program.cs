@@ -40,18 +40,16 @@ namespace InterfaceBuilder
                 instanceSpeakable.Add(mock);
             }
             ISpeakable speakable = instanceSpeakable as ISpeakable;
-
+            
             speakable!.Say("bark").Now();
             speakables[0].Dispose();
             speakable!.Say("bark").Now();
-
+            
             fooable!.Foo().Now();
             mocks[0].Dispose();
             mocks[1].Dispose();
             fooable.FooWithArgs("'passed parameter'").Now();
             fooable.Dispose();
-
-            //CompositeHelper.Perform();
         }
     }
 }

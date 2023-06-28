@@ -133,17 +133,4 @@ namespace InterfaceBuilder
 
         public event Action Disposed;
     }
-
-    public interface IPool<T> : IPoolItem where T : IPoolItem
-    {
-        void Add(T item);
-        void Remove(T item);
-    
-        List<T> Items { get; }
-    }
-
-    public interface IPoolItem : IDisposable
-    {
-        event Action Disposed;
-    }
 }

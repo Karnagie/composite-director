@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace InterfaceBuilder.CompositeGeneration
+namespace CompositeDirectorWithGeneratingComposites.CompositeDirector.CompositeGeneration
 {
     public static class ActionGrouper
     {

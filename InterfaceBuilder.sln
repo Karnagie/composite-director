@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterfaceBuilder", "Interfa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompositeDirectorOld", "CompositeDirectorOld\CompositeDirectorOld.csproj", "{784B29EF-D1D7-4C37-83A3-6D6050F1D682}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompositeDirectorWithGeneratingComposites", "CompositeDirectorWithGeneratingComposites\CompositeDirectorWithGeneratingComposites.csproj", "{EB28D6DE-3BA8-4A84-BABF-E35A0680A6E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{784B29EF-D1D7-4C37-83A3-6D6050F1D682}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{784B29EF-D1D7-4C37-83A3-6D6050F1D682}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{784B29EF-D1D7-4C37-83A3-6D6050F1D682}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB28D6DE-3BA8-4A84-BABF-E35A0680A6E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB28D6DE-3BA8-4A84-BABF-E35A0680A6E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB28D6DE-3BA8-4A84-BABF-E35A0680A6E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB28D6DE-3BA8-4A84-BABF-E35A0680A6E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
